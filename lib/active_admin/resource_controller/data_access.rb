@@ -225,7 +225,7 @@ module ActiveAdmin
       # Both `search` and `ransack` are provided, but we use `ransack` to prevent conflicts.
       def apply_filtering(chain)
         @search = chain.ransack clean_search_params params[:q]
-        @search.result
+        @search.result(distinct: true)
       end
 
       def clean_search_params(params)
