@@ -14,7 +14,7 @@ module ActiveAdmin
 
         def add_classes_to_body
           @body.add_class(params[:action])
-          @body.add_class(params[:controller].gsub('/', '_'))
+          @body.add_class(params[:controller].tr('/', '_'))
           @body.add_class("active_admin")
           @body.add_class("logged_in")
           @body.add_class(active_admin_namespace.name.to_s + "_namespace")
@@ -31,8 +31,8 @@ module ActiveAdmin
               text_node(javascript_include_tag(path))
             end
 
-            if active_admin_application.favicon
-              text_node(favicon_link_tag(active_admin_application.favicon))
+            if active_admin_namespace.favicon
+              text_node(favicon_link_tag(active_admin_namespace.favicon))
             end
 
             text_node csrf_meta_tag
@@ -42,11 +42,18 @@ module ActiveAdmin
         def build_page
           within @body do
             div id: "wrapper" do
+              build_unsupported_browser
               build_header
               build_title_bar
               build_page_content
               build_footer
             end
+          end
+        end
+
+        def build_unsupported_browser
+          if active_admin_namespace.unsupported_browser_matcher =~ env["HTTP_USER_AGENT"]
+            insert_tag view_factory.unsupported_browser
           end
         end
 
@@ -68,7 +75,7 @@ module ActiveAdmin
 
         def build_flash_messages
           div class: 'flashes' do
-            flash.each do |type, message|
+            flash_messages.each do |type, message|
               div message, class: "flash flash_#{type}"
             end
           end
